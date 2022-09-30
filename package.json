@@ -1,0 +1,20 @@
+{
+  "name": "todoapp",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Javascript",
+    "Node.JS",
+    "SQLite"
+  ],
+  "author": "Ingrid",
+  "license": "MIT",
+  "dependencies": {
+    "sqlite": "^4.1.2",
+    "sqlite3": "^5.1.1"
+  }
+}
