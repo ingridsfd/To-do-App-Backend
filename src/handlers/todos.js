@@ -71,37 +71,27 @@ ToDosRequestHandler.delete("/to-dos/:id", async (request, response) => { //la po
 
 //Challenge: realizar el update
 ToDosRequestHandler.put("/to-dos", async (request, response) => {
-    //redacta el try - catch
-    try { // ¿Queremos actualizar todos los datos? Sí
+  //redacta el try - catch
+  try { // ¿Queremos actualizar todos los datos? Sí
     //Hay que indicarle de dónde a dónde en nuestra base de datos. Usa la referencia del post
-        const { title, description, isDone: is_done } = request.body;
-        const dbHandler = await getDBHandler();
-
-        const newTodo = await dbHandler.run(`
-            INSERT INTO todos (title, description, is_done)
-            VALUES (
-                '${title}',
-                '${description}',
-                ${is_done}
-            )
-        `);
-
-        await dbHandler.close();
+    const dbHandler = await getDBHandler();
+    const todos = await dbHandler.all("SELECT * FROM todos");
+    await dbHandler.close();
     //Ahora, dile qué necesitamos a hacer con los datos: actualizarlos
     //¿cómo lo redactarías? primero que si el contenido de todos esos params deja de ser igual a sí mismo, que retorne un post vacío
-        if ({ title, description, isDone: is_done } !== { title, description, isDone: is_done }) {
-            //return nuevo post vacío
-        } else {
-            return response.status(404).send({ message: "To Dos Not Found" });
-        };
+    if (todos !== todos) {
+      //return nuevo post vacío
+      } else {
+      return response.status(404).send({ message: "To Do not updated yet" });
+    };
 
     response.send({ todos });
-    } catch (error) {
-        response.status(500).send({
-            error: `Something went wrong when trying to get the to dos`,
-            errorInfo: error.message,
-        });
-    }
+  } catch (error) {
+    response.status(500).send({
+      error: `Something went wrong when trying to get the to dos`,
+      errorInfo: error.message,
+    });
+  }
 });
     
 export default ToDosRequestHandler; 
