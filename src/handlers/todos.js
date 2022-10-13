@@ -1,4 +1,4 @@
-import Express, { response } from "express";
+import Express from "express";
 import { getDBHandler } from "../db/index.js";
 
 const ToDosRequestHandler = Express.Router();
@@ -70,31 +70,37 @@ ToDosRequestHandler.delete("/to-dos/:id", async (request, response) => { //la po
 });
 
 //Challenge: realizar el update
-ToDosRequestHandler.patch("/to-dosU", async (request, response) => {
+ToDosRequestHandler.patch("/to-dos/:id", async (request, response) => {
   //redacta el try - catch
   try { 
-    const changes = request.body; //el usuario hará cambios desde el body
+    const todoId = request.params.id; //el usuario hará cambios desde el body
+    const { title, description, isDone: is_done } = request.body;
     const dbHandler = await getDBHandler();
     //estos son los inputs del usuario en la base de datos
-    const newTodo = await dbHandler.run(`
-        INSERT INTO todos (title, description, is_done)
-        VALUES (
-            '${title}',
-            '${description}',
-            ${is_done}
-        )
-    `);
-    const todos = await dbHandler.all("SELECT * FROM todos"); //selecciona todos los inputs de las columnas existentes
-    const found = todos.find(todos => todos === newTodo); //ubica y registra todo los cambios de los usuarios en los todos
-    //Aquí intercambia unos datos por otros:
-    if (found) {
-      Object.assign(found, changes)
-      response.status(200).json(found)
-    } else {
-      return response.status(404).send({ message: "Not able to make changes" });
-    };
+
+    const todoToUpdate = await dbHandler.get( //hay que llamar un get
+      `SELECT * FROM todos WHERE id = ?`,
+      todoId
+    );
+    
+    //Aquí hay que definir lo que debe correr el API
+    await dbHandler.run(
+      `
+      UPDATE todos SET title = ?, description = ?, is_done = ? 
+      WHERE id = ?
+    `,
+      title || todoToUpdate.title, 
+      description || todoToUpdate.description, 
+      is_done || todoToUpdate.is_done,
+      todoId
+    );
+
+    await dbHandler.close();
+
     //Aquí enviamos el dato para ver
-    response.send({ todos });
+    response.send({
+      todoUpdated: { ...todoToUpdate, title, description, is_done }
+    });
   } catch (error) {
     response.status(500).send({
       error: `Something went wrong when trying to update the to dos`,
