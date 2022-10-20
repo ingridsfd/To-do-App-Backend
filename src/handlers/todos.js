@@ -82,17 +82,16 @@ ToDosRequestHandler.patch("/to-dos/:id", async (request, response) => {
       `SELECT * FROM todos WHERE id = ?`,
       todoId
     );
+
+    let isDone = is_done ? 1 : 0;
     
     //Aquí hay que definir lo que debe correr el API
     await dbHandler.run(
-      `
-      UPDATE todos SET title = ?, description = ?, is_done = ? 
-      WHERE id = ?
-    `,
+      `UPDATE todos SET title = ?, description = ?, is_done = ? 
+      WHERE id = ?`,
       title || todoToUpdate.title, 
       description || todoToUpdate.description, 
-      is_done || todoToUpdate.is_done,
-      todoId
+      isDone, todoId || todoToUpdate.id
     );
 
     await dbHandler.close();
